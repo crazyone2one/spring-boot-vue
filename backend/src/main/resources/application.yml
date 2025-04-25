@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: spring-boot-vue
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: password
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://localhost:3306/test_db?useSSL=false&autoReconnect=true&characterEncoding=utf8
+    hikari:
+      pool-name: HikariCP
+      connection-test-query: SELECT 1
