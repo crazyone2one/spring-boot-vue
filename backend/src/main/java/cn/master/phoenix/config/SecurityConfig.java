@@ -2,7 +2,7 @@ package cn.master.phoenix.config;
 
 import cn.master.phoenix.security.CustomAccessDeniedHandler;
 import cn.master.phoenix.security.CustomUserDetailsService;
-import cn.master.phoenix.security.JwtAuthenticationEntryPoint;
+import cn.master.phoenix.security.RestAuthenticationEntryPoint;
 import cn.master.phoenix.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,7 +29,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final RestAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
@@ -37,7 +37,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests(request -> request
-//                .requestMatchers("/login").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
                 .anyRequest().permitAll());
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

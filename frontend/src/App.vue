@@ -1,30 +1,26 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import { useEventListener, useWindowSize } from "@vueuse/core";
+import { enUS, NConfigProvider, NGlobalStyle } from "naive-ui";
+import { ref } from "vue";
+import ProviderView from "./components/ProviderView.vue";
+import useAppStore from "/@/store/modules/app";
+const appStore = useAppStore();
+
+const locale = ref(enUS);
+/** 屏幕大小改变时重新赋值innerHeight */
+useEventListener(window, "resize", () => {
+  const { height } = useWindowSize();
+  appStore.innerHeight = height.value;
+});
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <n-config-provider class="wh-full" inline-theme-disabled :locale="locale">
+    <n-global-style />
+    <provider-view>
+      <router-view />
+    </provider-view>
+  </n-config-provider>
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+<style scoped></style>

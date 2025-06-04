@@ -4,9 +4,14 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: password
+    password: Passw0rd
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/test_db?useSSL=false&autoReconnect=true&characterEncoding=utf8
+    url: jdbc:mysql://localhost:3306/phoenix?useSSL=false&autoReconnect=true&characterEncoding=utf8
     hikari:
       pool-name: HikariCP
       connection-test-query: SELECT 1
+influx:
+  url: http://172.16.2.10:8086
+  token: CgfdhyPnh-GIrYtLV37zLffC4mvP620xRXA6mu2BRThTrnWwNJp1b6Pl5dpGnykgYhg5EoI0WptScdKq7YKZ2g==
+  org: admin
+  bucket: analyse

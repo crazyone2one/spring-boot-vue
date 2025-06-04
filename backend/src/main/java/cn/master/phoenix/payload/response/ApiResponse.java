@@ -1,40 +1,46 @@
 package cn.master.phoenix.payload.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 /**
  * created by 11's papa at 2025/4/25-11:42 @version v1.0
  */
-@Setter
-@Getter
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiResponse {
-    private Boolean success;
+public class ApiResponse<T> {
+    private Long timestamp;
     private String message;
-    private Object data;
+    private T data;
+    private Integer code;
 
-    public ApiResponse(boolean success, String message) {
-        this.success = success;
-        this.message = message;
+    public static <T> ApiResponse<T> success() {
+        return success(null);
     }
 
-    public static ApiResponse success(String message, Object data) {
-        return new ApiResponse(true, message, data);
+    public static <T> ApiResponse<T> success(T data) {
+        return ApiResponse.<T>builder()
+                .code(200)
+                .message("操作成功")
+                .data(data)
+                .timestamp(System.currentTimeMillis())
+                .build();
     }
 
-    public static ApiResponse success(String message) {
-        return new ApiResponse(true, message);
+    public static <T> ApiResponse<T> error(Integer code, String message) {
+        return ApiResponse.<T>builder()
+                .code(code)
+                .message(message)
+                .timestamp(System.currentTimeMillis())
+                .build();
     }
 
-    public static ApiResponse error(String message, Object data) {
-        return new ApiResponse(false, message, data);
-    }
-
-    public static ApiResponse error(String message) {
-        return new ApiResponse(false, message);
+    public static <T> ApiResponse<T> error(ApiError apiError) {
+        return ApiResponse.<T>builder()
+                .code(apiError.getCode())
+                .message(apiError.getMessage())
+                .timestamp(System.currentTimeMillis())
+                .build();
     }
 }

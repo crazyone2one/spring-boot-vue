@@ -20,7 +20,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.error("Responding with unauthorized error. Message - {}", authException.getMessage());
@@ -53,7 +53,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         body.put("status", statusCode);
         body.put("message", message);
         body.put("path", request.getServletPath());
-        body.put("data", null);
+        body.put("error", "Unauthorized");
 
         final ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(response.getOutputStream(), body);

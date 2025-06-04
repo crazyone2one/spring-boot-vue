@@ -1,11 +1,16 @@
 package cn.master.phoenix.security;
 
+import cn.master.phoenix.entity.SystemUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Created by 11's papa on 2025/4/25
@@ -22,7 +27,17 @@ public class UserPrincipal implements UserDetails {
         this.username = username;
         this.id = id;
         this.password = password;
-        this.authorities = authorities;
+        if (authorities == null) {
+            this.authorities = null;
+        } else {
+            this.authorities = new ArrayList<>(authorities);
+        }
+    }
+
+    public static UserPrincipal create(SystemUser user) {
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+        return new UserPrincipal(user.getUsername(), user.getId(), user.getPassword(), authorities);
     }
 
     @Override

@@ -19,19 +19,27 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     private static final String SECRET_KEY = "RJ1GhpjrWCBTbo3gfwHNa4dq4eBuSvNtxWx4OwW9K9V87kkML+Ww7vyT1idm+av2";
+    // 30分钟
+    private static final long ACCESS_TOKEN_EXPIRATION = 1_000L * 60 * 30;
+    // 7天
+    private static final long REFRESH_TOKEN_EXPIRATION = 1_000L * 60 * 60 * 24 * 7;
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey())
                 .compact();
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateRefreshToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails, REFRESH_TOKEN_EXPIRATION);
+    }
+
+    public String generateAccessToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails, ACCESS_TOKEN_EXPIRATION);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
