@@ -5,7 +5,7 @@ export interface IUser {
   /** 用户名 */
   name: string;
   /* 用户邮箱 */
-  email: string;
+  email?: string;
   /** 用户角色类型 */
   role?: IRoleType[];
 }

@@ -1,8 +1,9 @@
 package cn.master.phoenix.controller;
 
 import cn.master.phoenix.payload.request.AuthenticationRequest;
+import cn.master.phoenix.payload.response.AuthenticationResponse;
 import cn.master.phoenix.service.AuthenticationService;
-import cn.master.phoenix.service.impl.AuthenticationServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +21,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationServiceImpl.AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 }

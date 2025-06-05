@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from "vue-router";
 import { createRouter, createWebHashHistory } from "vue-router";
 import useAppStore from "../store/modules/app";
+import {local} from "/@/utils/storage.ts";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -13,7 +14,47 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/403',
+    name: '403',
+    component: () => import('/@/views/error/Error403.vue'),
+    meta: {
+      title: '用户无权限',
+      withoutTab: true,
+    },
+  },
+  {
+    path: '/404',
+    name: '404',
+    component: () => import('/@/views/error/Error404.vue'),
+    meta: {
+      title: '找不到页面',
+      icon: 'icon-park-outline:ghost',
+      withoutTab: true,
+    },
+  },
+  {
+    path: '/500',
+    name: '500',
+    component: () => import('/@/views/error/Error500.vue'),
+    meta: {
+      title: '服务器错误',
+      icon: 'icon-park-outline:close-wifi',
+      withoutTab: true,
+    },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: () => import('/@/views/error/Error404.vue'),
+    name: '404',
+    meta: {
+      title: '找不到页面',
+      icon: 'icon-park-outline:ghost',
+      withoutTab: true,
+    },
+  },
+  {
     path: "/",
+    redirect:'/dashboard',
     component: () => import("/@/layout/index.vue"),
     children: [
       {
@@ -26,8 +67,8 @@ const routes: RouteRecordRaw[] = [
         },
       },
       {
-        path: "/users",
-        name: "users",
+        path: "/user-list",
+        name: "user-list",
         component: () => import("/@/views/user/index.vue"),
         meta: {
           title: "User Management",
@@ -62,18 +103,24 @@ router.beforeEach(async (to, _from, next) => {
   if (appStore.showProgress) {
     window.$loadingBar?.start();
   }
-  // if (to.name === "login") next();
-  next();
-});
-router.beforeResolve((to) => {
-  console.log(to);
+  const isLogin = Boolean(local.get('accessToken'))
+  if (!isLogin) {
+    if (to.name === 'login')
+      next()
 
-  // 设置菜单高亮
-  // routeStore.setActiveMenu(to.meta.activeMenu ?? to.fullPath);
-  // 添加tabs
-  // tabStore.addTab(to)
-  // 设置高亮标签;
-  // tabStore.setCurrentTab(to.fullPath as string)
+    if (to.name !== 'login') {
+      const redirect = to.name === '404' ? undefined : to.fullPath
+      next({ path: '/login', query: { redirect } })
+    }
+    return false
+  }
+  // 判断当前页是否在login,则定位去首页
+  if (to.name === 'login') {
+    next({ path: '/' })
+    return false
+  }
+
+  next()
 });
 router.afterEach((to) => {
   const appStore = useAppStore();

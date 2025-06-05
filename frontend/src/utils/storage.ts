@@ -10,19 +10,20 @@ const createLocalStorage = <T extends ILocal>() => {
     value: T[K],
     expire: number = 60 * 60 * 24 * 7
   ) => {
+    console.log(value)
     const storageData: StorageData<T[K]> = {
       value,
       expire: new Date().getTime() + expire * 1000,
     };
     const json = JSON.stringify(storageData);
-    window.localStorage.setItem(`${String(key)}`, json);
+    localStorage.setItem(`${String(key)}`, json);
   };
-  const clear = window.localStorage.clear;
+  const clear = localStorage.clear;
   const remove = (key: keyof T) => {
-    window.localStorage.removeItem(`${String(key)}`);
+    localStorage.removeItem(`${String(key)}`);
   };
   const get = <K extends keyof T>(key: K) => {
-    const json = window.localStorage.getItem(`${String(key)}`);
+    const json = localStorage.getItem(`${String(key)}`);
     if (!json) return null;
 
     const storageData: StorageData<T[K]> | null = JSON.parse(json);

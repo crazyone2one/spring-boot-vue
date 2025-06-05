@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author Created by 11's papa on 2025/5/29
  */
-@Component(value = "influxUtils")
+
 public class InfluxUtils {
 
 

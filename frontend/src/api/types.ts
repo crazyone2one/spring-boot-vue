@@ -12,7 +12,7 @@ interface IRequestError<T> {
 }
 export interface IResponseResult<T> extends IRequestError<T> {
   /** 请求服务是否成功 */
-  isSuccess: boolean;
+  success: boolean;
   /** 请求服务的错误类型 */
   errorType: RequestErrorType;
   /** 错误码 */

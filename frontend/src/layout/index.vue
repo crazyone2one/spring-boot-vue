@@ -98,6 +98,8 @@ import {
 } from "naive-ui";
 import { h, ref, type Component } from "vue";
 import { useRouter } from "vue-router";
+import {useAuthStore} from "/@/store/modules/auth";
+const { logout } = useAuthStore()
 const router = useRouter();
 const collapsed = ref(false);
 const renderIcon = (icon: Component) => {
@@ -161,9 +163,15 @@ const handleMenuSelect = (key: string) => {
 // 处理用户菜单选择
 const handleUserMenuSelect = (key: string) => {
   if (key === "logout") {
-    // 实现登出逻辑
-    localStorage.removeItem("token");
-    router.push({ name: "login" });
+    window.$dialog.info({
+      title:'退出登录',
+      content:'确认退出当前账号？',
+      positiveText:'确认',
+      negativeText:'取消',
+      onPositiveClick: () => {
+        logout()
+      },
+    })
   }
 };
 const user = ref({

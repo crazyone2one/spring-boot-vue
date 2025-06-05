@@ -1,6 +1,7 @@
 package cn.master.phoenix.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author Created by 11's papa on 2025/4/25
@@ -32,6 +34,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         String token = getTokenFromRequest(request);
+        if (Objects.isNull(token)) {
+            logger.debug("No token found in request header or invalid format");
+            SecurityContextHolder.clearContext();
+            filterChain.doFilter(request, response);
+            return;
+        }
         if (StringUtils.hasText(token)) {
             try {
                 String username = jwtService.extractUsername(token);
@@ -47,9 +55,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 }
-            } catch (ExpiredJwtException exception) {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT token expired! Log in again!");
-                return;
+            } catch (JwtException exception) {
+                logger.error("Invalid JWT token: {}", exception);
+                SecurityContextHolder.clearContext();
+            } catch (Exception e) {
+                logger.error("Error processing authentication: {}", e);
+                SecurityContextHolder.clearContext();
             }
         }
         filterChain.doFilter(request, response);

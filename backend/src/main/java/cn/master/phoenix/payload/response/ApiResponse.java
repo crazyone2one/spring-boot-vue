@@ -1,6 +1,9 @@
 package cn.master.phoenix.payload.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 /**
  * created by 11's papa at 2025/4/25-11:42 @version v1.0
@@ -10,10 +13,13 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApiResponse<T> {
-    private Long timestamp;
-    private String message;
-    private T data;
     private Integer code;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-dd-MM hh:mm:ss")
+    private LocalDateTime timestamp;
+    private String message;
+    private Boolean success;
+    private T data;
+
 
     public static <T> ApiResponse<T> success() {
         return success(null);
@@ -24,7 +30,8 @@ public class ApiResponse<T> {
                 .code(200)
                 .message("操作成功")
                 .data(data)
-                .timestamp(System.currentTimeMillis())
+                .timestamp(LocalDateTime.now())
+                .success(true)
                 .build();
     }
 
@@ -32,7 +39,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .code(code)
                 .message(message)
-                .timestamp(System.currentTimeMillis())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 
@@ -40,7 +47,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .code(apiError.getCode())
                 .message(apiError.getMessage())
-                .timestamp(System.currentTimeMillis())
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 }

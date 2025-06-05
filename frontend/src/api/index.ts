@@ -40,7 +40,7 @@ const {onAuthRequired, onResponseRefreshToken} = createServerTokenAuthentication
 });
 // 创建alova实例
 export const alovaInstance = createAlova({
-    baseURL: import.meta.env.VITE_API_BASE_URL ?? '/',
+    baseURL: import.meta.env.VITE_APP_BASE_API ,
     timeout: 10000,
     statesHook: VueHook,
     requestAdapter: adapterFetch(),

@@ -2,6 +2,7 @@ package cn.master.phoenix.config;
 
 import cn.master.phoenix.exception.ResponseWrapperException;
 import cn.master.phoenix.payload.response.ApiResponse;
+import cn.master.phoenix.payload.response.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -39,6 +40,9 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
             } catch (Exception e) {
                 throw new ResponseWrapperException("Failed to wrap string response", e);
             }
+        }
+        if (body instanceof ErrorResponse) {
+            return body;
         }
         return ApiResponse.success(body);
     }
