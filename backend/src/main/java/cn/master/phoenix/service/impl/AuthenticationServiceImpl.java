@@ -1,6 +1,7 @@
 package cn.master.phoenix.service.impl;
 
 import cn.master.phoenix.payload.request.AuthenticationRequest;
+import cn.master.phoenix.payload.request.JwtRefreshTokenRequest;
 import cn.master.phoenix.payload.response.AuthenticationResponse;
 import cn.master.phoenix.payload.response.UserDTO;
 import cn.master.phoenix.security.CustomUserDetailsService;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 /**
  * @author Created by 11's papa on 2025/4/27
@@ -49,17 +51,46 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public AuthenticationResponse refreshToken(AuthenticationResponse token) {
+    public AuthenticationResponse refreshToken(JwtRefreshTokenRequest token) {
         try {
             String username = jwtService.extractUsername(token.getRefreshToken());
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
             if (jwtService.isTokenValid(token.getRefreshToken(), userDetails)) {
                 String accessToken = jwtService.generateAccessToken(userDetails);
+                LinkedHashMap<String, String> map = new LinkedHashMap<>();
+                map.put("accessToken", accessToken);
+                map.put("refreshToken", token.getRefreshToken());
+                stringRedisTemplate.opsForHash().putAll(userDetails.getUsername(), map);
                 return AuthenticationResponse.builder().accessToken(accessToken).refreshToken(token.getRefreshToken()).build();
             }
         } catch (Exception e) {
             log.error(e.getMessage());
         }
         return null;
+    }
+
+    @Override
+    public void logout() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (Objects.isNull(authentication) || !authentication.isAuthenticated()) {
+                log.warn("No authenticated user found for logout");
+                SecurityContextHolder.clearContext();
+                return;
+            }
+            if (authentication.getPrincipal() != null) {
+                log.info("Authentication principal: {}, type: {}",
+                        authentication.getPrincipal(),
+                        authentication.getPrincipal().getClass().getName());
+                String username = (String) authentication.getPrincipal();
+                Boolean deleted = stringRedisTemplate.delete(username);
+                log.info("Token deletion result: {}", deleted);
+                SecurityContextHolder.clearContext();
+            }
+        } catch (Exception ex) {
+            log.error("Error during logout: {}", ex.getMessage());
+            SecurityContextHolder.clearContext();
+            throw ex;
+        }
     }
 }

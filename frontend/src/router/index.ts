@@ -72,6 +72,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import("/@/views/user/index.vue"),
         meta: {
           title: "User Management",
+          requiresAuth: true,
         },
       },
       {

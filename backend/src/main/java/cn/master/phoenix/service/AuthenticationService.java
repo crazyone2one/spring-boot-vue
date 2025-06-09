@@ -1,6 +1,7 @@
 package cn.master.phoenix.service;
 
 import cn.master.phoenix.payload.request.AuthenticationRequest;
+import cn.master.phoenix.payload.request.JwtRefreshTokenRequest;
 import cn.master.phoenix.payload.response.AuthenticationResponse;
 
 /**
@@ -9,5 +10,7 @@ import cn.master.phoenix.payload.response.AuthenticationResponse;
 public interface AuthenticationService {
     AuthenticationResponse authenticate(AuthenticationRequest request);
 
-    AuthenticationResponse refreshToken(AuthenticationResponse token);
+    AuthenticationResponse refreshToken(JwtRefreshTokenRequest token);
+
+    void logout();
 }
