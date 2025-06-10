@@ -18,7 +18,7 @@ export const fetchLogin = (param: ILogin) => {
 };
 
 export const fetchUpdateToken = (param: { refreshToken: string }) => {
-    const methodInstance = alovaInstance.Post("api/auth/refresh", param);
+    const methodInstance = alovaInstance.Post<ILoginInfo>("api/auth/refresh", param);
     methodInstance.meta = {
         authRole: "refreshToken",
     };

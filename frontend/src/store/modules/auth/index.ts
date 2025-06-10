@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive, unref} from "vue";
-import {fetchLogin} from "/@/api/login";
+import {fetchLogin, fetchUpdateToken} from "/@/api/login";
 import router from "/@/router";
 import type {ILoginInfo} from "/@/types/user";
 import {local} from "/@/utils/storage";
@@ -8,7 +8,7 @@ import {local} from "/@/utils/storage";
 export const useAuthStore = defineStore("auth-store", () => {
     const sessionInfo = reactive({
         userInfo: local.get("userInfo"),
-        token: local.get("accessToken") || "",
+        token: local.get("accessToken") ?? "",
     });
     const isLogin = () => {
         return Boolean(sessionInfo.token);
@@ -34,6 +34,9 @@ export const useAuthStore = defineStore("auth-store", () => {
     const login = async (username: string, password: string) => {
         fetchLogin({username, password}).then(res => handleLoginInfo(res))
     };
+    const handleRefreshToken = async (refreshToken: string) => {
+        fetchUpdateToken({refreshToken}).then(res => handleLoginInfo(res))
+    }
     const logout = async () => {
         const route = unref(router.currentRoute);
         clearAuthStorage();
@@ -48,5 +51,5 @@ export const useAuthStore = defineStore("auth-store", () => {
             });
         }
     };
-    return {sessionInfo, isLogin, clearAuthStorage, login, logout};
+    return {sessionInfo, isLogin, clearAuthStorage, login, logout, handleRefreshToken};
 });

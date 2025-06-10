@@ -1,10 +1,14 @@
 package cn.master.phoenix.controller;
 
 import cn.master.phoenix.entity.SystemUser;
+import cn.master.phoenix.payload.BasePageRequest;
 import cn.master.phoenix.service.SystemUserService;
 import com.mybatisflex.core.paginate.Page;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,7 +19,7 @@ import java.util.List;
  * @since 1.0.0 2025-04-27
  */
 @RestController
-@RequestMapping("/system-user")
+@RequestMapping("/system/user")
 @RequiredArgsConstructor
 public class SystemUserController {
 
@@ -28,8 +32,8 @@ public class SystemUserController {
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
     @PostMapping("save")
-    public boolean save(@RequestBody SystemUser systemUser) {
-        return systemUserService.save(systemUser);
+    public String save(@RequestBody SystemUser systemUser) {
+        return systemUserService.saveUser(systemUser);
     }
 
     /**
@@ -65,25 +69,31 @@ public class SystemUserController {
     }
 
     /**
-     * 根据系统用户表主键获取详细信息。
+     * 通过email或id查找用户。
      *
-     * @param id 系统用户表主键
+     * @param keyword 系统用户表主键
      * @return 系统用户表详情
      */
-    @GetMapping("getInfo/{id}")
-    public SystemUser getInfo(@PathVariable String id) {
-        return systemUserService.getById(id);
+    @GetMapping("getInfo/{keyword}")
+    @Operation(summary = "通过email或id查找用户")
+    public SystemUser getInfo(@PathVariable String keyword) {
+        return systemUserService.getUserByKeyword(keyword);
     }
 
     /**
      * 分页查询系统用户表。
      *
-     * @param page 分页对象
+     * @param request 分页对象
      * @return 分页对象
      */
-    @GetMapping("page")
-    public Page<SystemUser> page(Page<SystemUser> page) {
-        return systemUserService.page(page);
+    @PostMapping("/page")
+    public Page<SystemUser> page(@Validated @RequestBody BasePageRequest request) {
+        return systemUserService.getUserByPage(request);
     }
 
+    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
+    @Operation(summary = "系统设置-系统-用户-导入用户")
+    public String importUser(@RequestPart(value = "file", required = false) MultipartFile file) {
+        return systemUserService.importByExcel(file);
+    }
 }

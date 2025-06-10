@@ -16,7 +16,7 @@ const {onAuthRequired, onResponseRefreshToken} = createServerTokenAuthentication
         // 响应时触发，可获取到response和method，并返回boolean表示token是否过期
         // 当服务端返回401时，表示token过期
         isExpired: (response, method) => {
-            const isExpired = method.meta && method.meta.isExpired
+            const isExpired = method?.meta?.isExpired
             return response.status === 401 && !isExpired;
         },
 
@@ -45,9 +45,9 @@ export const alovaInstance = createAlova({
     statesHook: VueHook,
     requestAdapter: adapterFetch(),
     // 请求拦截器
-    beforeRequest: onAuthRequired(_method => {
+    beforeRequest: onAuthRequired(method => {
         // ...原请求前拦截器
-        // console.log(method);
+        console.log('%c🍊 method', 'color:#2eafb0', method)
     }),
     responded: onResponseRefreshToken({
         // 请求成功的拦截器

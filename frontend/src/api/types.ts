@@ -1,24 +1,35 @@
-type RequestErrorType = "Response Error" | "Business Error" | null;
-type RequestCode = string | number;
-interface IRequestError<T> {
-  /** 请求服务的错误类型 */
-  errorType: RequestErrorType;
-  /** 错误码 */
-  code: RequestCode;
-  /** 错误信息 */
-  message: string;
-  /** 返回的数据 */
-  data?: T;
+
+
+export interface ICommonPage<T> {
+  [x: string]: any;
+  pageSize: number;
+  totalPage: number;
+  totalRow: number;
+  pageNumber: number;
+  records: T[];
 }
-export interface IResponseResult<T> extends IRequestError<T> {
-  /** 请求服务是否成功 */
-  success: boolean;
-  /** 请求服务的错误类型 */
-  errorType: RequestErrorType;
-  /** 错误码 */
-  code: RequestCode;
-  /** 错误信息 */
-  message: string;
-  /** 返回的数据 */
-  data: T;
+
+export interface IUserItem{
+  id: string;
+  username: string;
+  email: string;
+  password: string;
+  enable: boolean;
+  lastMineCode: string; // 当前项目ID
+}
+
+export interface ITableQueryParams{
+  // 当前页
+  page?: number;
+  // 每页条数
+  pageSize?: number;
+  // 排序仅针对单个字段
+  sort?: object;
+  // 排序仅针对单个字段
+  sortString?: string;
+  // 表头筛选
+  filter?: object;
+  // 查询条件
+  keyword?: string;
+  [key: string]: any;
 }
