@@ -1,6 +1,5 @@
 package cn.master.phoenix.security;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -28,6 +29,7 @@ import java.util.Objects;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final StringRedisTemplate stringRedisTemplate;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -44,6 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 String username = jwtService.extractUsername(token);
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    if (!validateTokenByRedis(username, token)) {
+                        filterChain.doFilter(request, response);
+                        return;
+                    }
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     if (jwtService.isTokenValid(token, userDetails)) {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -64,6 +70,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean validateTokenByRedis(String username, String token) {
+        if (!stringRedisTemplate.hasKey(username)) {
+            return false;
+        }
+        Map<Object, Object> user = stringRedisTemplate.opsForHash().entries(username);
+        String accessToken = user.get("accessToken").toString();
+        return token.equals(accessToken);
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {
