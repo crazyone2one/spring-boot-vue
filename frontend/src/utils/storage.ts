@@ -10,7 +10,6 @@ const createLocalStorage = <T extends ILocal>() => {
     value: T[K],
     expire: number = 60 * 60 * 24 * 7
   ) => {
-    console.log(value)
     const storageData: StorageData<T[K]> = {
       value,
       expire: new Date().getTime() + expire * 1000,

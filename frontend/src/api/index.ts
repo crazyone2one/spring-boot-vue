@@ -3,11 +3,12 @@ import adapterFetch from 'alova/fetch';
 import VueHook from 'alova/vue';
 import {createServerTokenAuthentication} from "alova/client";
 import {handleRefreshToken} from "/@/api/http/handle.ts";
+import {local} from "/@/utils/storage.ts";
 
 const {onAuthRequired, onResponseRefreshToken} = createServerTokenAuthentication({
     // 添加token
     assignToken(method) {
-        const token = localStorage.getItem('token');
+        const token = local.get("accessToken");
         if (token) {
             method.config.headers.Authorization = `Bearer ${token}`;
         }
@@ -65,7 +66,7 @@ export const alovaInstance = createAlova({
                 return json.data;
             }
             if (response.status == 500) {
-                window.$message.error("服务器异常");
+                window.$message.error(json.message ?? "服务器异常");
                 throw new Error("服务器异常");
             }
             if (response.status >= 400) {

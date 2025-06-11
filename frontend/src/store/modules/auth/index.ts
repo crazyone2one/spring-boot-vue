@@ -1,6 +1,6 @@
 import {defineStore} from "pinia";
 import {reactive, unref} from "vue";
-import {fetchLogin, fetchUpdateToken} from "/@/api/login";
+import {fetchLogin, fetchLogout, fetchUpdateToken} from "/@/api/login";
 import router from "/@/router";
 import type {ILoginInfo} from "/@/types/user";
 import {local} from "/@/utils/storage";
@@ -38,6 +38,7 @@ export const useAuthStore = defineStore("auth-store", () => {
         fetchUpdateToken({refreshToken}).then(res => handleLoginInfo(res))
     }
     const logout = async () => {
+        await fetchLogout()
         const route = unref(router.currentRoute);
         clearAuthStorage();
         sessionInfo.token = ''

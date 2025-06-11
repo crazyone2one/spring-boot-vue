@@ -62,7 +62,7 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
                 throw new CustomException(exception.getMessage());
             }
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode("password"));
         save(user);
         return user.getId();
     }

@@ -2,13 +2,15 @@
 import {usePagination} from "alova/client";
 import {fetchUserPage} from "/@/api/system/user.ts";
 import type {IUserItem} from "/@/api/types.ts";
-import {type DataTableColumns, type DataTableRowKey, NSpace, NButton} from "naive-ui";
+import {type DataTableColumns, type DataTableRowKey, NSpace, NButton, NSwitch} from "naive-ui";
 import {ref, onMounted, h} from "vue";
 import {EditOutlined} from "@vicons/antd"
 import PaginationComponent from "/@/components/PaginationComponent.vue";
+import EditUser from "/@/views/user/EditUser.vue";
 
 const pattern = ref('')
 const keyword = ref('')
+const show = ref(false)
 const {loading, data, pageSize, page, total, send} = usePagination((page, pageSize) => fetchUserPage({page, pageSize}),
     {
       initialData: {total: 0, data: []},
@@ -22,20 +24,31 @@ const {loading, data, pageSize, page, total, send} = usePagination((page, pageSi
 const handleEdit = (row: IUserItem) => {
   window.$message.info(row.username)
 }
+const handleUpdateUserStatus = (row: IUserItem) => {
+  console.log(row)
+}
 const checkedRowKeysRef = ref<DataTableRowKey[]>([])
 const columns: DataTableColumns<IUserItem> = [
   {type: 'selection',},
   {title: 'username', key: 'username'},
   {title: 'nickname', key: 'nickname'},
+  {title: 'email', key: 'email'},
+  {
+    title: 'status', key: 'enabled',
+    render(row) {
+      return h(NSwitch, {value: row.enabled, size: 'small',
+        onUpdateValue: () => handleUpdateUserStatus(row)}, {})
+    }
+  },
   {
     title: 'Action',
     key: 'actions',
     fixed: 'right',
-    width:'200',
+    width: '200',
     render(row) {
       return h(NSpace, {}, {
         default: () => {
-          return h(NButton, {tertiary: true, text:true,type: 'warning', onClick: () => handleEdit(row)},
+          return h(NButton, {text: true, type: 'warning', onClick: () => handleEdit(row)},
               {default: () => 'edit', icon: () => h(EditOutlined)})
         }
       })
@@ -47,7 +60,7 @@ const handleCheck = (rowKeys: DataTableRowKey[]) => {
   checkedRowKeysRef.value = rowKeys
 }
 const handleCreateUser = () => {
-
+  show.value = true
 }
 onMounted(() => {
   send()
@@ -88,6 +101,7 @@ onMounted(() => {
         <pagination-component :page-size="pageSize" :page="page" :count="total"/>
       </n-grid-item>
     </n-grid>
+    <edit-user v-model:show="show" @reload="send"/>
   </div>
 
 </template>

@@ -14,7 +14,7 @@ export interface IUserItem{
   username: string;
   email: string;
   password: string;
-  enable: boolean;
+  enabled: boolean;
   lastMineCode: string; // 当前项目ID
 }
 

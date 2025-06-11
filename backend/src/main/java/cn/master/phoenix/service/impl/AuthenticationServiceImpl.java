@@ -79,10 +79,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 return;
             }
             if (authentication.getPrincipal() != null) {
-                log.info("Authentication principal: {}, type: {}",
-                        authentication.getPrincipal(),
-                        authentication.getPrincipal().getClass().getName());
-                String username = (String) authentication.getPrincipal();
+                log.info("Authentication principal: {}, type: {}", authentication.getPrincipal(), authentication.getPrincipal().getClass().getName());
+                UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+                String username = userPrincipal.getUsername();
                 Boolean deleted = stringRedisTemplate.delete(username);
                 log.info("Token deletion result: {}", deleted);
                 SecurityContextHolder.clearContext();
