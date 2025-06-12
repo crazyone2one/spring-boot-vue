@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -41,19 +41,19 @@ public class GlobalExceptionHandler {
         return ResultHolder.error(HttpStatus.BAD_REQUEST.value(), "参数校验失败", errors);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<ResultHolder> handleAuthenticationException(AuthenticationException ex) {
-        return ResponseEntity.internalServerError()
-                .body(ResultHolder.error(HttpStatus.UNAUTHORIZED.value(),
-                        "Authentication error", getStackTraceAsString(ex)));
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseEntity<ResultHolder> handleAuthenticationException(AuthorizationDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN.value())
+                .body(ResultHolder.error(HttpStatus.FORBIDDEN.value(),
+                        "Access Denied", getStackTraceAsString(ex)));
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ResponseEntity<ResultHolder> handleBadCredentialsException(BadCredentialsException ex) {
         log.error("Bad credentials", ex);
-        return ResponseEntity.internalServerError()
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value())
                 .body(ResultHolder.error(HttpStatus.UNAUTHORIZED.value(),
                         "Invalid username or password", getStackTraceAsString(ex)));
     }
