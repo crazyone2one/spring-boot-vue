@@ -11,4 +11,6 @@ public interface AuthenticationService {
     AuthenticationResponse authenticate(AuthenticationRequest request);
 
     AuthenticationResponse refreshToken(JwtRefreshTokenRequest token);
+
+    void logout();
 }
