@@ -9,6 +9,7 @@ import cn.master.phoenix.mapper.SystemUserMapper;
 import cn.master.phoenix.payload.BasePageRequest;
 import cn.master.phoenix.service.SystemUserService;
 import com.mybatisflex.core.paginate.Page;
+import com.mybatisflex.core.query.QueryChain;
 import com.mybatisflex.spring.service.impl.ServiceImpl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -79,12 +80,21 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
 
     @Override
     public Page<SystemUser> getUserByPage(BasePageRequest request) {
-        return queryChain()
+        Page<SystemUser> page = queryChain()
                 .where(SYSTEM_USER.ID.eq(request.getKeyword())
                         .or(SYSTEM_USER.USERNAME.like(request.getKeyword()))
                         .or(SYSTEM_USER.EMAIL.like(request.getKeyword()))
                 )
-                .page(new Page<>(request.getPage(),request.getPageSize()));
+                .page(new Page<>(request.getPage(), request.getPageSize()));
+        if (!page.getRecords().isEmpty()) {
+            page.getRecords().forEach(item -> {
+                List<SystemRole> roles = QueryChain.of(SystemRole.class).from(SYSTEM_ROLE)
+                        .innerJoin(SYSTEM_USER_ROLE).on(SYSTEM_USER_ROLE.USER_ID.eq(item.getId())
+                                .and(SYSTEM_USER_ROLE.ROLE_ID.eq(SYSTEM_ROLE.ID))).list();
+                item.setRoles(roles);
+            });
+        }
+        return page;
     }
 
     private void checkUserEmail(String id, String email) {

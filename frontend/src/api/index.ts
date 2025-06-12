@@ -4,7 +4,7 @@ import VueHook from 'alova/vue';
 import {createServerTokenAuthentication} from "alova/client";
 import {handleRefreshToken} from "/@/api/http/handle.ts";
 import {useAuthStore} from "/@/store/modules/auth";
-import globalLoading  from "/@/composables/global-load-state.ts";
+import globalLoading from "/@/composables/global-load-state.ts";
 
 
 const {onAuthRequired, onResponseRefreshToken} = createServerTokenAuthentication({
@@ -76,7 +76,6 @@ export const alovaInstance = createAlova({
                 throw new Error("服务器异常");
             }
             if (response.status >= 400) {
-                console.log(json)
                 window.$message.error(json.message)
                 if (json.code === 1401 && json.errorType === 'TOKEN_EXPIRED') {
                     window.$dialog.warning({
@@ -106,5 +105,6 @@ export const alovaInstance = createAlova({
             const tip = `[${method.type}] - [${method.url}] - ${error.message}`
             window.$message.error(tip)
         },
+        onComplete: () => globalLoading.hideLoading()
     })
 })

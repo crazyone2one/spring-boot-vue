@@ -2,17 +2,18 @@
 import {usePagination} from "alova/client";
 import {fetchUserPage} from "/@/api/system/user.ts";
 import type {IUserItem} from "/@/api/types.ts";
-import {type DataTableColumns, type DataTableRowKey, NSpace, NButton, NSwitch} from "naive-ui";
-import {ref, onMounted, h} from "vue";
+import {type DataTableColumns, type DataTableRowKey, NButton, NSpace, NSwitch} from "naive-ui";
+import {h, onMounted, ref} from "vue";
 import {EditOutlined} from "@vicons/antd"
 import PaginationComponent from "/@/components/PaginationComponent.vue";
 import EditUser from "/@/views/user/EditUser.vue";
+import TagComp from "/@/components/TagComp.vue";
 
 const pattern = ref('')
 const keyword = ref('')
 const userId = ref('')
 const show = ref(false)
-const {loading, data, pageSize, page, total, send} = usePagination((page, pageSize) => fetchUserPage({page, pageSize}),
+const {data, pageSize, page, total, send} = usePagination((page, pageSize) => fetchUserPage({page, pageSize}),
     {
       initialData: {total: 0, data: []},
       initialPage: 1, // 初始页码，默认为1
@@ -45,6 +46,12 @@ const columns: DataTableColumns<IUserItem> = [
     }
   },
   {
+    title: 'role', key: 'roles',
+    render(row) {
+      return h(TagComp, {roles: row.roles}, {})
+    }
+  },
+  {
     title: 'Action',
     key: 'actions',
     fixed: 'right',
@@ -65,6 +72,12 @@ const handleCheck = (rowKeys: DataTableRowKey[]) => {
 }
 const handleCreateUser = () => {
   show.value = true
+}
+const handlePage = (param: number) => {
+  page.value = param
+}
+const handlePageSize = (param: number) => {
+  pageSize.value = param
 }
 onMounted(() => {
   send()
@@ -102,7 +115,8 @@ onMounted(() => {
             :row-key="rowKey"
             @update:checked-row-keys="handleCheck"
         />
-        <pagination-component :page-size="pageSize" :page="page" :count="total"/>
+        <pagination-component :page-size="pageSize" :page="page" :count="total" @update-page="handlePage"
+                              @update-page-size="handlePageSize"/>
       </n-grid-item>
     </n-grid>
     <edit-user v-model:show="show" v-model:user-id="userId" @reload="send"/>

@@ -17,7 +17,9 @@ export const useAuthStore = defineStore("auth", () => {
         isAuthenticated.value = false;
     };
     const handleLoginInfo = (data: ILoginInfo) => {
-        userInfo.value = data
+        if (data.user) {
+            userInfo.value = data;
+        }
         accessToken.value = data.access_token
         refreshToken.value = data.refresh_token
         // 进行重定向跳转

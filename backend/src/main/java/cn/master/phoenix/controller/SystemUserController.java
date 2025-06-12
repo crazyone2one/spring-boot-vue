@@ -6,6 +6,7 @@ import cn.master.phoenix.service.SystemUserService;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -86,6 +87,7 @@ public class SystemUserController {
      * @param request 分页对象
      * @return 分页对象
      */
+    @PreAuthorize("hasRole('admin')")
     @PostMapping("/page")
     public Page<SystemUser> page(@Validated @RequestBody BasePageRequest request) {
         return systemUserService.getUserByPage(request);
