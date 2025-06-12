@@ -10,6 +10,7 @@ import EditUser from "/@/views/user/EditUser.vue";
 
 const pattern = ref('')
 const keyword = ref('')
+const userId = ref('')
 const show = ref(false)
 const {loading, data, pageSize, page, total, send} = usePagination((page, pageSize) => fetchUserPage({page, pageSize}),
     {
@@ -22,7 +23,8 @@ const {loading, data, pageSize, page, total, send} = usePagination((page, pageSi
     },
 )
 const handleEdit = (row: IUserItem) => {
-  window.$message.info(row.username)
+  userId.value = row.id
+  show.value = true
 }
 const handleUpdateUserStatus = (row: IUserItem) => {
   console.log(row)
@@ -36,8 +38,10 @@ const columns: DataTableColumns<IUserItem> = [
   {
     title: 'status', key: 'enabled',
     render(row) {
-      return h(NSwitch, {value: row.enabled, size: 'small',
-        onUpdateValue: () => handleUpdateUserStatus(row)}, {})
+      return h(NSwitch, {
+        value: row.enabled, size: 'small',
+        onUpdateValue: () => handleUpdateUserStatus(row)
+      }, {})
     }
   },
   {
@@ -101,7 +105,7 @@ onMounted(() => {
         <pagination-component :page-size="pageSize" :page="page" :count="total"/>
       </n-grid-item>
     </n-grid>
-    <edit-user v-model:show="show" @reload="send"/>
+    <edit-user v-model:show="show" v-model:user-id="userId" @reload="send"/>
   </div>
 
 </template>

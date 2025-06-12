@@ -20,7 +20,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
-import java.util.Objects;
 
 /**
  * @author Created by 11's papa on 2025/4/27
@@ -67,29 +66,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             log.error(e.getMessage());
         }
         return null;
-    }
-
-    @Override
-    public void logout() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (Objects.isNull(authentication) || !authentication.isAuthenticated()) {
-                log.warn("No authenticated user found for logout");
-                SecurityContextHolder.clearContext();
-                return;
-            }
-            if (authentication.getPrincipal() != null) {
-                log.info("Authentication principal: {}, type: {}", authentication.getPrincipal(), authentication.getPrincipal().getClass().getName());
-                UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-                String username = userPrincipal.getUsername();
-                Boolean deleted = stringRedisTemplate.delete(username);
-                log.info("Token deletion result: {}", deleted);
-                SecurityContextHolder.clearContext();
-            }
-        } catch (Exception ex) {
-            log.error("Error during logout: {}", ex.getMessage());
-            SecurityContextHolder.clearContext();
-            throw ex;
-        }
     }
 }

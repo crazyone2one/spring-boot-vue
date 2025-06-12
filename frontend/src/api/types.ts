@@ -12,6 +12,7 @@ export interface ICommonPage<T> {
 export interface IUserItem{
   id: string;
   username: string;
+  nickname: string;
   email: string;
   password: string;
   enabled: boolean;

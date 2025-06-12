@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import ModalComp from "/@/components/ModalComp.vue";
-import {ref} from "vue";
+import {ref, watchEffect} from "vue";
 import type {FormInst, FormItemRule, FormRules} from "naive-ui";
 import {validateEmail} from "/@/utils/validate.ts";
-import {useForm} from "alova/client";
-import {fetchAddUser} from "/@/api/system/user.ts";
+import {useForm, useRequest} from "alova/client";
+import {fetchAddUser, fetchEditUser, fetchGetUserInfo} from "/@/api/system/user.ts";
 
 const emit = defineEmits(['reload'])
 const show = defineModel('show', {default: false})
+const userId = defineModel('userId', {default: ''})
 const formRef = ref<FormInst | null>(null)
-
+const title = ref('添加用户')
 const rules: FormRules = {
   username: {required: true, message: '请输入账号', trigger: ['blur', 'input'], max: 255},
   nickname: {required: true, message: '请输入账号', trigger: ['blur', 'input'], max: 255},
@@ -25,26 +26,30 @@ const rules: FormRules = {
     trigger: ['blur']
   }
 }
-const {form, send, reset} = useForm(form => fetchAddUser(form),
+const {form, send, reset, updateForm} = useForm(form => form.id ? fetchEditUser(form) : fetchAddUser(form),
     {
       initialForm: {
+        id: '',
         username: '',
         nickname: '',
         email: '',
       },
       resetAfterSubmiting: true
     })
+
 const handleCancel = () => {
   reset()
   show.value = false
   formRef.value?.restoreValidation()
+  userId.value = ''
+  title.value = '添加用户'
 }
 
 const handleSubmit = () => {
   formRef.value?.validate(err => {
     if (!err) {
       send().then(() => {
-        window.$message.success('用户添加成功')
+        window.$message.success(userId.value ? '编辑成功' : '用户添加成功')
         show.value = false
         formRef.value?.restoreValidation()
         emit(('reload'))
@@ -52,10 +57,26 @@ const handleSubmit = () => {
     }
   })
 }
+watchEffect(() => {
+  if (show.value) {
+    if (userId.value.length !== 0) {
+      title.value = '编辑用户'
+      useRequest(fetchGetUserInfo(userId.value)).onSuccess(({data}) => {
+        // console.log(data)
+        updateForm({
+          id: data.id,
+          username: data.username,
+          nickname: data.nickname,
+          email: data.email,
+        })
+      });
+    }
+  }
+})
 </script>
 
 <template>
-  <modal-comp v-model:show-modal="show" preset="dialog" title="添加用户"
+  <modal-comp v-model:show-modal="show" preset="dialog" :title="title"
               @cancel-callback="handleCancel" @submit-callback="handleSubmit">
     <template #default>
       <n-form

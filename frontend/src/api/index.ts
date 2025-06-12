@@ -3,12 +3,13 @@ import adapterFetch from 'alova/fetch';
 import VueHook from 'alova/vue';
 import {createServerTokenAuthentication} from "alova/client";
 import {handleRefreshToken} from "/@/api/http/handle.ts";
-import {local} from "/@/utils/storage.ts";
+import {useAuthStore} from "/@/store/modules/auth";
 
 const {onAuthRequired, onResponseRefreshToken} = createServerTokenAuthentication({
     // 添加token
     assignToken(method) {
-        const token = local.get("accessToken");
+        const authStore = useAuthStore()
+        const token = method.meta?.authRole === 'refreshToken' ? authStore.refreshToken : authStore.accessToken;
         if (token) {
             method.config.headers.Authorization = `Bearer ${token}`;
         }
@@ -45,10 +46,11 @@ export const alovaInstance = createAlova({
     timeout: 10000,
     statesHook: VueHook,
     requestAdapter: adapterFetch(),
+    // cacheFor: null,
     // 请求拦截器
-    beforeRequest: onAuthRequired(method => {
+    beforeRequest: onAuthRequired(_method => {
         // ...原请求前拦截器
-        console.log('%c🍊 method', 'color:#2eafb0', method)
+        // console.log('%c🍊 method', 'color:#2eafb0', _method)
     }),
     responded: onResponseRefreshToken({
         // 请求成功的拦截器
@@ -70,7 +72,21 @@ export const alovaInstance = createAlova({
                 throw new Error("服务器异常");
             }
             if (response.status >= 400) {
+                console.log(json)
                 window.$message.error(json.message)
+                if (json.code === 1401 && json.errorType === 'TOKEN_EXPIRED') {
+                    window.$dialog.warning({
+                        title: 'TOKEN EXPIRED',
+                        content: "Token已过期，重新登录",
+                        positiveText: '确定',
+                        closable: false,
+                        closeOnEsc: false,
+                        onPositiveClick: () => {
+                            const authStore = useAuthStore()
+                            authStore.logout()
+                        }
+                    })
+                }
                 throw new Error(statusText);
             }
             if (json.code !== 200) {

@@ -1,6 +1,7 @@
 package cn.master.phoenix.controller;
 
 import cn.master.phoenix.payload.request.AuthenticationRequest;
+import cn.master.phoenix.payload.request.JwtRefreshTokenRequest;
 import cn.master.phoenix.payload.response.AuthenticationResponse;
 import cn.master.phoenix.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,8 +30,9 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
-    @PostMapping("/logout")
-    public void logout() {
-        authenticationService.logout();
+    @PostMapping("/refresh")
+    @Operation(summary = "刷新token")
+    public ResponseEntity<AuthenticationResponse> refresh(@Valid @RequestBody JwtRefreshTokenRequest request) {
+        return ResponseEntity.ok(authenticationService.refreshToken(request));
     }
 }

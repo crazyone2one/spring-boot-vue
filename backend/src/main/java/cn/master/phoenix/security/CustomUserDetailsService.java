@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User is not found by username:" + username));
         List<SystemRole> systemRoles = QueryChain.of(SystemRole.class).select(SYSTEM_ROLE.ALL_COLUMNS)
                 .from(SYSTEM_ROLE)
-                .innerJoin(SYSTEM_USER_ROLE).on(SYSTEM_USER_ROLE.USER_ID.eq(SYSTEM_ROLE.ID)
+                .innerJoin(SYSTEM_USER_ROLE).on(SYSTEM_USER_ROLE.ROLE_ID.eq(SYSTEM_ROLE.ID)
                         .and(SYSTEM_USER_ROLE.USER_ID.eq(systemUser.getId())))
                 .listAs(SystemRole.class);
         systemUser.setRoles(systemRoles);

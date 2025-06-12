@@ -12,3 +12,5 @@ export const fetchUserPage = (param: ITableQueryParams) => alovaInstance.Post<IC
  * @param param
  */
 export const fetchAddUser = (param: IUserForm) => alovaInstance.Post("system/user/save", param);
+export const fetchEditUser = (param: IUserForm) => alovaInstance.Put("system/user/update", param);
+export const fetchGetUserInfo = (id: string) => alovaInstance.Get<IUserItem>("system/user/getInfo/" + id)

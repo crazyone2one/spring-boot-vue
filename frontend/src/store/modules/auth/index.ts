@@ -1,29 +1,25 @@
 import {defineStore} from "pinia";
-import {reactive, unref} from "vue";
+import {ref, unref} from "vue";
 import {fetchLogin, fetchLogout, fetchUpdateToken} from "/@/api/login";
 import router from "/@/router";
 import type {ILoginInfo} from "/@/types/user";
-import {local} from "/@/utils/storage";
 
-export const useAuthStore = defineStore("auth-store", () => {
-    const sessionInfo = reactive({
-        userInfo: local.get("userInfo"),
-        token: local.get("accessToken") ?? "",
-    });
-    const isLogin = () => {
-        return Boolean(sessionInfo.token);
-    };
+export const useAuthStore = defineStore("auth", () => {
+    const accessToken = ref('');
+    const refreshToken = ref('');
+    const userInfo = ref<ILoginInfo | null>(null);
+    const isAuthenticated = ref(false);
+
     const clearAuthStorage = () => {
-        local.remove("accessToken");
-        local.remove("refreshToken");
-        local.remove("userInfo");
+        accessToken.value = '';
+        refreshToken.value = '';
+        userInfo.value = null;
+        isAuthenticated.value = false;
     };
     const handleLoginInfo = (data: ILoginInfo) => {
-        local.set("userInfo", data);
-        local.set("accessToken", data.access_token);
-        local.set("refreshToken", data.refresh_token);
-        sessionInfo.userInfo = data
-        sessionInfo.token = data.access_token
+        userInfo.value = data
+        accessToken.value = data.access_token
+        refreshToken.value = data.refresh_token
         // 进行重定向跳转
         const route = unref(router.currentRoute);
         const query = route.query as { redirect: string };
@@ -41,8 +37,6 @@ export const useAuthStore = defineStore("auth-store", () => {
         await fetchLogout()
         const route = unref(router.currentRoute);
         clearAuthStorage();
-        sessionInfo.token = ''
-        sessionInfo.userInfo = local.get("userInfo")
         if (route.meta.requiresAuth) {
             router.push({
                 name: "login",
@@ -52,5 +46,9 @@ export const useAuthStore = defineStore("auth-store", () => {
             });
         }
     };
-    return {sessionInfo, isLogin, clearAuthStorage, login, logout, handleRefreshToken};
+    return {accessToken, refreshToken, userInfo, clearAuthStorage, login, logout, handleRefreshToken};
+}, {
+    persist: {
+        key: 'auth'
+    }
 });
