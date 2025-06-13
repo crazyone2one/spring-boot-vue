@@ -9,7 +9,7 @@ import PaginationComponent from "/@/components/PaginationComponent.vue";
 import EditUser from "/@/views/user/EditUser.vue";
 import TagComp from "/@/components/TagComp.vue";
 
-const pattern = ref('')
+
 const keyword = ref('')
 const userId = ref('')
 const show = ref(false)

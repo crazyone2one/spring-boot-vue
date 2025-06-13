@@ -257,7 +257,6 @@ const userMenuItems = [
 
 .footer-text {
   text-align: center;
-  color: #8c8c8c;
   font-size: 14px;
 }
 </style>

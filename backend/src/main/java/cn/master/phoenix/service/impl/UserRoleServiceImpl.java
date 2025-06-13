@@ -22,6 +22,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     @Override
     public UserRole add(UserRole userRole) {
         userRole.setInternal(false);
+        userRole.setEnabled(true);
         checkExist(userRole);
         mapper.insert(userRole);
         return userRole;
