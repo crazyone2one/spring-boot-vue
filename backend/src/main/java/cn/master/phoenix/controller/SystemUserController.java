@@ -1,6 +1,7 @@
 package cn.master.phoenix.controller;
 
 import cn.master.phoenix.entity.SystemUser;
+import cn.master.phoenix.handler.annotation.Loggable;
 import cn.master.phoenix.payload.BasePageRequest;
 import cn.master.phoenix.payload.request.SaveUserRequest;
 import cn.master.phoenix.service.SystemUserService;
@@ -33,6 +34,7 @@ public class SystemUserController {
      * @param systemUser 系统用户表
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
+    @Loggable("创建新用户")
     @PostMapping("save")
     public String save(@RequestBody SaveUserRequest systemUser) {
         return systemUserService.saveUser(systemUser);
@@ -55,6 +57,7 @@ public class SystemUserController {
      * @param systemUser 系统用户表
      * @return {@code true} 更新成功，{@code false} 更新失败
      */
+    @Loggable("更新用户信息")
     @PutMapping("update")
     public String update(@RequestBody SaveUserRequest systemUser) {
         return systemUserService.updateUser(systemUser);
