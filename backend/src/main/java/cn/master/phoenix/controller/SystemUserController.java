@@ -2,6 +2,7 @@ package cn.master.phoenix.controller;
 
 import cn.master.phoenix.entity.SystemUser;
 import cn.master.phoenix.payload.BasePageRequest;
+import cn.master.phoenix.payload.request.SaveUserRequest;
 import cn.master.phoenix.service.SystemUserService;
 import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,7 +34,7 @@ public class SystemUserController {
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
     @PostMapping("save")
-    public String save(@RequestBody SystemUser systemUser) {
+    public String save(@RequestBody SaveUserRequest systemUser) {
         return systemUserService.saveUser(systemUser);
     }
 
@@ -55,8 +56,8 @@ public class SystemUserController {
      * @return {@code true} 更新成功，{@code false} 更新失败
      */
     @PutMapping("update")
-    public boolean update(@RequestBody SystemUser systemUser) {
-        return systemUserService.updateById(systemUser);
+    public String update(@RequestBody SaveUserRequest systemUser) {
+        return systemUserService.updateUser(systemUser);
     }
 
     /**

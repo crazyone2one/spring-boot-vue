@@ -2,14 +2,12 @@ package cn.master.phoenix.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import java.io.Serial;
 
-import com.mybatisflex.core.keygen.KeyGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,8 +23,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("system_role")
-public class SystemRole implements Serializable {
+@Table("user_role_relation")
+public class UserRoleRelation implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -38,9 +36,14 @@ public class SystemRole implements Serializable {
     private String id;
 
     /**
-     * role name
+     * user_id
      */
-    private String name;
+    private String userId;
+
+    /**
+     * role_id
+     */
+    private String roleId;
 
     /**
      * 创建时间
@@ -53,11 +56,6 @@ public class SystemRole implements Serializable {
      */
     @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateDate;
-
-    /**
-     * 是否有效，1-有效，0无效
-     */
-    private Boolean enabled;
 
     /**
      * 是否删除。0-未删除，1-已删除

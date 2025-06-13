@@ -25,9 +25,8 @@ public class MyBatisFlexConfiguration implements MyBatisFlexCustomizer {
         FlexGlobalConfig.getDefaultConfig().setLogicDeleteColumn("deleted");
 
         //开启审计功能
-        AuditManager.setAuditEnable(true);
+//        AuditManager.setAuditEnable(true);
         //设置 SQL 审计收集器
-        AuditManager.setMessageCollector(auditMessage -> log.info("{},{}ms", auditMessage.getFullSql(), auditMessage.getElapsedTime())
-        );
+//        AuditManager.setMessageCollector(auditMessage -> log.info("{},{}ms", auditMessage.getFullSql(), auditMessage.getElapsedTime()));
     }
 }

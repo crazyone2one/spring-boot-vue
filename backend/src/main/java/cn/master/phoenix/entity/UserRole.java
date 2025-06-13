@@ -2,14 +2,16 @@ package cn.master.phoenix.entity;
 
 import com.mybatisflex.annotation.Column;
 import com.mybatisflex.annotation.Id;
-import com.mybatisflex.annotation.KeyType;
 import com.mybatisflex.annotation.Table;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import java.io.Serial;
 
-import com.mybatisflex.core.keygen.KeyGenerators;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,8 +27,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("system_user_role")
-public class SystemUserRole implements Serializable {
+@Table("user_role")
+public class UserRole implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -38,15 +40,19 @@ public class SystemUserRole implements Serializable {
     private String id;
 
     /**
-     * user_id
+     * role name
      */
-    private String userId;
-
-    /**
-     * role_id
-     */
-    private String roleId;
-
+    @NotBlank(message = "{user_role.name.not_blank}")
+    @Size(min = 1, max = 255, message = "{user_role.name.length_range}")
+    private String name;
+    @Schema(description =  "描述")
+    private String description;
+    @Schema(description =  "是否是内置用户组", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{user_role.internal.not_blank}")
+    private Boolean internal;
+    @NotBlank(message = "{user_role.scope_id.not_blank}")
+    @Size(min = 1, max = 50, message = "{user_role.scope_id.length_range}")
+    private String scopeId;
     /**
      * 创建时间
      */
@@ -58,6 +64,11 @@ public class SystemUserRole implements Serializable {
      */
     @Column(onUpdateValue = "now()", onInsertValue = "now()")
     private LocalDateTime updateDate;
+
+    /**
+     * 是否有效，1-有效，0无效
+     */
+    private Boolean enabled;
 
     /**
      * 是否删除。0-未删除，1-已删除

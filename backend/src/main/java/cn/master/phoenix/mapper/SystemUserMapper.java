@@ -1,7 +1,7 @@
 package cn.master.phoenix.mapper;
 
-import com.mybatisflex.core.BaseMapper;
 import cn.master.phoenix.entity.SystemUser;
+import com.mybatisflex.core.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

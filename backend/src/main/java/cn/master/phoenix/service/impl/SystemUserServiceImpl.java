@@ -1,12 +1,16 @@
 package cn.master.phoenix.service.impl;
 
-import cn.master.phoenix.entity.SystemRole;
 import cn.master.phoenix.entity.SystemUser;
+import cn.master.phoenix.entity.UserRole;
+import cn.master.phoenix.entity.UserRoleRelation;
 import cn.master.phoenix.exception.CustomException;
 import cn.master.phoenix.exception.InvalidEmailException;
+import cn.master.phoenix.handler.convert.SystemUserConvert;
 import cn.master.phoenix.handler.validator.EmailValidator;
 import cn.master.phoenix.mapper.SystemUserMapper;
+import cn.master.phoenix.mapper.UserRoleRelationMapper;
 import cn.master.phoenix.payload.BasePageRequest;
+import cn.master.phoenix.payload.request.SaveUserRequest;
 import cn.master.phoenix.service.SystemUserService;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryChain;
@@ -20,9 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static cn.master.phoenix.entity.table.SystemRoleTableDef.SYSTEM_ROLE;
-import static cn.master.phoenix.entity.table.SystemUserRoleTableDef.SYSTEM_USER_ROLE;
 import static cn.master.phoenix.entity.table.SystemUserTableDef.SYSTEM_USER;
+import static cn.master.phoenix.entity.table.UserRoleRelationTableDef.USER_ROLE_RELATION;
+import static cn.master.phoenix.entity.table.UserRoleTableDef.USER_ROLE;
 
 /**
  * 系统用户表 服务层实现。
@@ -34,38 +38,47 @@ import static cn.master.phoenix.entity.table.SystemUserTableDef.SYSTEM_USER;
 @RequiredArgsConstructor
 public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemUser> implements SystemUserService {
     private final PasswordEncoder passwordEncoder;
+    private final UserRoleRelationMapper userRoleRelationMapper;
+    private final SystemUserConvert systemUserConvert;
 
     @Override
     public SystemUser loadUserByUsername(String username) {
         SystemUser systemUser = queryChain().where(SYSTEM_USER.USERNAME.eq(username)).oneOpt()
                 .orElseThrow(() -> new UsernameNotFoundException("User is not found by username:" + username));
-        List<SystemRole> systemRoles = queryChain().select(SYSTEM_ROLE.ALL_COLUMNS)
-                .from(SYSTEM_ROLE)
-                .leftJoin(SYSTEM_USER_ROLE).on(SYSTEM_USER_ROLE.USER_ID.eq(SYSTEM_ROLE.ID)
-                        .and(SYSTEM_USER_ROLE.USER_ID.eq(systemUser.getId())))
-                .listAs(SystemRole.class);
-        systemUser.setRoles(systemRoles);
+        List<UserRole> userRoles = queryChain().select(USER_ROLE.ALL_COLUMNS)
+                .from(USER_ROLE)
+                .leftJoin(USER_ROLE_RELATION).on(USER_ROLE_RELATION.USER_ID.eq(USER_ROLE.ID)
+                        .and(USER_ROLE_RELATION.USER_ID.eq(systemUser.getId())))
+                .listAs(UserRole.class);
+        systemUser.setRoles(userRoles);
         return systemUser;
     }
 
     @Override
     @Transactional(rollbackOn = Exception.class)
-    public String saveUser(SystemUser user) {
-        if (queryChain().where(SYSTEM_USER.USERNAME.eq(user.getUsername())).exists()) {
+    public String saveUser(SaveUserRequest userRequest) {
+        if (queryChain().where(SYSTEM_USER.USERNAME.eq(userRequest.getUsername())).exists()) {
             throw new CustomException("用户已存在");
         }
-        if (!user.getEmail().isEmpty()) {
-            checkUserEmail(user.getId(), user.getEmail());
+        if (!userRequest.getEmail().isEmpty()) {
+            checkUserEmail(userRequest.getId(), userRequest.getEmail());
             EmailValidator validator = new EmailValidator();
             try {
-                validator.validateEmail(user.getEmail());
+                validator.validateEmail(userRequest.getEmail());
             } catch (InvalidEmailException exception) {
                 throw new CustomException(exception.getMessage());
             }
         }
-        user.setPassword(passwordEncoder.encode("password"));
-        save(user);
-        return user.getId();
+        SystemUser systemUser = systemUserConvert.convert(userRequest);
+        systemUser.setPassword(passwordEncoder.encode("password"));
+        save(systemUser);
+        if (!userRequest.getRoleIds().isEmpty()) {
+            userRequest.getRoleIds().forEach(roleId -> {
+                UserRoleRelation userRoleRelation = UserRoleRelation.builder().userId(systemUser.getId()).roleId(roleId).build();
+                userRoleRelationMapper.insert(userRoleRelation);
+            });
+        }
+        return userRequest.getId();
     }
 
     @Override
@@ -88,13 +101,38 @@ public class SystemUserServiceImpl extends ServiceImpl<SystemUserMapper, SystemU
                 .page(new Page<>(request.getPage(), request.getPageSize()));
         if (!page.getRecords().isEmpty()) {
             page.getRecords().forEach(item -> {
-                List<SystemRole> roles = QueryChain.of(SystemRole.class).from(SYSTEM_ROLE)
-                        .innerJoin(SYSTEM_USER_ROLE).on(SYSTEM_USER_ROLE.USER_ID.eq(item.getId())
-                                .and(SYSTEM_USER_ROLE.ROLE_ID.eq(SYSTEM_ROLE.ID))).list();
+                List<UserRole> roles = QueryChain.of(UserRole.class).from(USER_ROLE)
+                        .innerJoin(USER_ROLE_RELATION).on(USER_ROLE_RELATION.USER_ID.eq(item.getId())
+                                .and(USER_ROLE_RELATION.ROLE_ID.eq(USER_ROLE.ID))).list();
                 item.setRoles(roles);
             });
         }
         return page;
+    }
+
+    @Override
+    public String updateUser(SaveUserRequest userRequest) {
+        if (!userRequest.getEmail().isEmpty()) {
+            checkUserEmail(userRequest.getId(), userRequest.getEmail());
+            EmailValidator validator = new EmailValidator();
+            try {
+                validator.validateEmail(userRequest.getEmail());
+            } catch (InvalidEmailException exception) {
+                throw new CustomException(exception.getMessage());
+            }
+        }
+        SystemUser systemUser = systemUserConvert.convert(userRequest);
+        mapper.update(systemUser);
+        if (!userRequest.getRoleIds().isEmpty()) {
+            QueryChain<UserRoleRelation> userRoleRelationQueryChain =
+                    QueryChain.of(UserRoleRelation.class).where(USER_ROLE_RELATION.USER_ID.eq(systemUser.getId()));
+            userRoleRelationMapper.deleteByQuery(userRoleRelationQueryChain);
+            userRequest.getRoleIds().forEach(roleId -> {
+                UserRoleRelation userRoleRelation = UserRoleRelation.builder().userId(systemUser.getId()).roleId(roleId).build();
+                userRoleRelationMapper.insert(userRoleRelation);
+            });
+        }
+        return systemUser.getId();
     }
 
     private void checkUserEmail(String id, String email) {

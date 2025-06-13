@@ -76,12 +76,10 @@ const routes: RouteRecordRaw[] = [
                 },
             },
             {
-                path: "/settings",
-                name: "settings",
-                component: () => import("/@/views/setting/index.vue"),
-                meta: {
-                    title: "Settings",
-                },
+                path: "/user-roles",
+                name: "user-roles",
+                component: () => import("/src/views/setting/user-role/index.vue"),
+                meta: {title: "User Roles",},
             },
         ],
     },

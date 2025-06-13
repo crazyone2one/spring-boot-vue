@@ -24,4 +24,5 @@ export interface IUserForm {
     nickname: string;
     email?: string;
     id?: string
+    roleIds: string[]
 }

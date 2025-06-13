@@ -1,8 +1,8 @@
 package cn.master.phoenix.service.impl;
 
 import com.mybatisflex.spring.service.impl.ServiceImpl;
-import cn.master.phoenix.entity.SystemUserRole;
-import cn.master.phoenix.mapper.SystemUserRoleMapper;
+import cn.master.phoenix.entity.UserRoleRelation;
+import cn.master.phoenix.mapper.UserRoleRelationMapper;
 import cn.master.phoenix.service.SystemUserRoleService;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +13,6 @@ import org.springframework.stereotype.Service;
  * @since 1.0.0 2025-04-27
  */
 @Service
-public class SystemUserRoleServiceImpl extends ServiceImpl<SystemUserRoleMapper, SystemUserRole>  implements SystemUserRoleService{
+public class SystemUserRoleServiceImpl extends ServiceImpl<UserRoleRelationMapper, UserRoleRelation>  implements SystemUserRoleService{
 
 }

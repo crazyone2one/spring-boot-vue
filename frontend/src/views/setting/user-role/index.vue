@@ -3,7 +3,7 @@
 </script>
 
 <template>
-setting page
+user role
 </template>
 
 <style scoped>

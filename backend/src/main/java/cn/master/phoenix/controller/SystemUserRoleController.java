@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
-import cn.master.phoenix.entity.SystemUserRole;
+import cn.master.phoenix.entity.UserRoleRelation;
 import cn.master.phoenix.service.SystemUserRoleService;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
@@ -30,12 +30,12 @@ public class SystemUserRoleController {
     /**
      * 添加。
      *
-     * @param systemUserRole 
+     * @param userRoleRelation
      * @return {@code true} 添加成功，{@code false} 添加失败
      */
     @PostMapping("save")
-    public boolean save(@RequestBody SystemUserRole systemUserRole) {
-        return systemUserRoleService.save(systemUserRole);
+    public boolean save(@RequestBody UserRoleRelation userRoleRelation) {
+        return systemUserRoleService.save(userRoleRelation);
     }
 
     /**
@@ -52,12 +52,12 @@ public class SystemUserRoleController {
     /**
      * 根据主键更新。
      *
-     * @param systemUserRole 
+     * @param userRoleRelation
      * @return {@code true} 更新成功，{@code false} 更新失败
      */
     @PutMapping("update")
-    public boolean update(@RequestBody SystemUserRole systemUserRole) {
-        return systemUserRoleService.updateById(systemUserRole);
+    public boolean update(@RequestBody UserRoleRelation userRoleRelation) {
+        return systemUserRoleService.updateById(userRoleRelation);
     }
 
     /**
@@ -66,7 +66,7 @@ public class SystemUserRoleController {
      * @return 所有数据
      */
     @GetMapping("list")
-    public List<SystemUserRole> list() {
+    public List<UserRoleRelation> list() {
         return systemUserRoleService.list();
     }
 
@@ -77,7 +77,7 @@ public class SystemUserRoleController {
      * @return 详情
      */
     @GetMapping("getInfo/{id}")
-    public SystemUserRole getInfo(@PathVariable String id) {
+    public UserRoleRelation getInfo(@PathVariable String id) {
         return systemUserRoleService.getById(id);
     }
 
@@ -88,7 +88,7 @@ public class SystemUserRoleController {
      * @return 分页对象
      */
     @GetMapping("page")
-    public Page<SystemUserRole> page(Page<SystemUserRole> page) {
+    public Page<UserRoleRelation> page(Page<UserRoleRelation> page) {
         return systemUserRoleService.page(page);
     }
 

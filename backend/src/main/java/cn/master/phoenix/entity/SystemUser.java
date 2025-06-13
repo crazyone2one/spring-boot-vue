@@ -75,5 +75,5 @@ public class SystemUser implements Serializable {
     private Boolean deleted;
 
     @Column(ignore = true)
-    private List<SystemRole> roles;
+    private List<UserRole> roles;
 }

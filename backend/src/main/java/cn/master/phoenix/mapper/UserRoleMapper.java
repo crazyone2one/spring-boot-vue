@@ -1,7 +1,7 @@
 package cn.master.phoenix.mapper;
 
 import com.mybatisflex.core.BaseMapper;
-import cn.master.phoenix.entity.SystemUserRole;
+import cn.master.phoenix.entity.UserRole;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -11,6 +11,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 1.0.0 2025-04-27
  */
 @Mapper
-public interface SystemUserRoleMapper extends BaseMapper<SystemUserRole> {
+public interface UserRoleMapper extends BaseMapper<UserRole> {
 
 }

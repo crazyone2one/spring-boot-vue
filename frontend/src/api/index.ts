@@ -72,11 +72,11 @@ export const alovaInstance = createAlova({
                 return json.data;
             }
             if (response.status == 500) {
-                window.$message.error(json.message ?? "服务器异常");
+                window.$message.error("服务器异常");
                 throw new Error("服务器异常");
             }
             if (response.status >= 400) {
-                window.$message.error(json.message)
+                window.$message.error(json.message, {duration: 6000})
                 if (json.code === 1401 && json.errorType === 'TOKEN_EXPIRED') {
                     window.$dialog.warning({
                         title: 'TOKEN EXPIRED',

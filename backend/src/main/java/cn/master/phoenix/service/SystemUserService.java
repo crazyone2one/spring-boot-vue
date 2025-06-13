@@ -1,6 +1,7 @@
 package cn.master.phoenix.service;
 
 import cn.master.phoenix.payload.BasePageRequest;
+import cn.master.phoenix.payload.request.SaveUserRequest;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.service.IService;
 import cn.master.phoenix.entity.SystemUser;
@@ -21,11 +22,13 @@ public interface SystemUserService extends IService<SystemUser> {
      */
     SystemUser loadUserByUsername(String username);
 
-    String saveUser(SystemUser user);
+    String saveUser(SaveUserRequest user);
 
     SystemUser getUserByKeyword(String keyword);
 
     String importByExcel(MultipartFile file);
 
     Page<SystemUser> getUserByPage(BasePageRequest request);
+
+    String updateUser(SaveUserRequest systemUser);
 }
